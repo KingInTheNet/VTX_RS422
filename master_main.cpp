@@ -60,30 +60,7 @@ void writeCommand(){
     while (running){
         // std::lock_guard<std::mutex> lock(serialMutex);
         // auto beg = std::chrono::high_resolution_clock::now();
-        while (processing){
-            if ((count == 5) && b_type && !(transfer)) {
-                transfer = 1;
-                cout << "Communication end" << endl;
-            }
-            // else if(count == 5){
-            //     cout << "Communication end" << endl;
-            // }
-            else if(count == 0) {
-                cout << "current write cycle: "
-                    << std::dec << (int)cycle << endl;
-                
-                b_type = (cmd_keys[msg[0]] == TYPE_B);
-            }
-            // msg[0] = 0xDE;
-            if(next_step) {
-                writeBuffer[0] = msg[count];
-                if (!WriteFile(hSerial, writeBuffer, sizeof(writeBuffer), &bytesWritten, NULL)
-                    < 0) {
-                    std::cerr << "Error writing to serial port" << std::endl;
-                }
-                next_step =false;
-                cout << "Written data" << std::hex<<(int) writeBuffer[0] << endl;
-            }
+        // while (processing){
             
             // cout << "Data sent: " << writeBuffer[0] << endl;
             // if(b_type && transfer){
@@ -144,6 +121,29 @@ void writeCommand(){
             // count++;
             // count++;
             // count++;
+        // }
+        if ((count == 5) && b_type && !(transfer)) {
+            transfer = 1;
+            cout << "Communication end" << endl;
+        }
+        // else if(count == 5){
+        //     cout << "Communication end" << endl;
+        // }
+        else if(count == 0) {
+            cout << "current write cycle: "
+                << std::dec << (int)cycle << endl;
+            
+            b_type = (cmd_keys[msg[0]] == TYPE_B);
+        }
+        // msg[0] = 0xDE;
+        if(next_step) {
+            writeBuffer[0] = msg[count];
+            if (!WriteFile(hSerial, writeBuffer, sizeof(writeBuffer), &bytesWritten, NULL)
+                < 0) {
+                std::cerr << "Error writing to serial port" << std::endl;
+            }
+            next_step =false;
+            cout << "Written data" << std::hex<<(int) writeBuffer[0] << endl;
         }
         
         // auto end = std::chrono::high_resolution_clock::now();
@@ -163,7 +163,7 @@ void readResponse(){
     while (running){
         // std::lock_guard<std::mutex> lock(serialMutex);
         // auto beg = std::chrono::high_resolution_clock::now();
-        while (processing){
+        // while (processing){
             // if ((count == 5) && b_type) {
             //     transfer = 1;
             //     cout << "Communication end" << endl;
@@ -186,97 +186,7 @@ void readResponse(){
             // }
             
             // cout << "Data sent: " << writeBuffer[0] << endl;
-            if(b_type && transfer){
-                while (nByte < 24){
-                    // DWORD bytesRead;
-                    // n = readFromSerialPort(fd,dataBuffer, sizeof(dataBuffer));
-                    if (!ReadFile(hSerial, dataBuffer, sizeof(dataBuffer), &bytesRead, NULL)) {
-                        std::cerr << "Error reading from serial port" << std::endl;
-                        CloseHandle(hSerial);
-                        // return 1;
-                    }
-                    // else {
-                    //     cout << "Read byte from serial port: "
-                    //         << std::hex <<(int) dataBuffer[0] << "len :" << (int)n << endl;
-                    // }
-                    // big_data+=(nByte*6);
-                    if(bytesRead >0){
-                        // memcpy(&big_data[nByte],&dataBuffer,sizeof(dataBuffer));
-                        cout << "Read from serial port: 0x"
-                        //     << std::hex <<(int) readBuffer[0] <<endl;//std::string(readBuffer, n) << "len :" << n << endl;
-                        // count++;
-                        big_data[nByte] = dataBuffer[0];
-                        nByte++;
-                    }
-                    
-                
-                }
-                // if (!ReadFile(hSerial, big_data, sizeof(big_data), &bytesRead, NULL)) {
-                //     std::cerr << "Error reading from serial port" << std::endl;
-                //     CloseHandle(hSerial);
-                //     // return 1;
-                // }
-                // if(bytesRead >0){
-                //     // memcpy(&big_data[nByte*6],&dataBuffer,sizeof(dataBuffer));
-                //     // nByte++;
-
-                // }
-                count = 0;
-                transfer = 0;
-                nByte = 0;
-                b_type = 0;
-                cout << "Read big data from serial port: "
-                            << std::string(big_data, sizeof(big_data)) << endl;
-                cycle++;
-                next_step = true;
-                cout << "current read cycle: "
-                << (int)cycle << endl;
-                if ((int)cycle == 16){
-                    running = false;
-                    processing = false;
-                    break;
-                }
-                
-                
-            }else {
-                
-                // n = readFromSerialPort(fd,readBuffer, sizeof(readBuffer));
-                if (!ReadFile(hSerial, readBuffer, sizeof(readBuffer), &bytesRead, NULL)) {
-                    std::cerr << "Error reading from serial port" << std::endl;
-                    CloseHandle(hSerial);
-                    // return 1;
-                }
-                if(bytesRead > 0){
-                    // if (readBuffer[0] == 0xAC){
-                    //     count = 0;
-                    // }
-                    // else {
-                    cout << "Read from serial port: 0x"
-                        << std::hex <<(int) readBuffer[0] <<endl;//std::string(readBuffer, n) << "len :" << n << endl;
-                    count++;
-                    // cout<< "Data in buffer" << endl;
-                    // }
-                    if(readBuffer[0]==writeBuffer[0]){
-                        
-                        next_step = true;
-                        if(readBuffer[0]==0xAC){
-                            cout<< "End of cycle" << endl;
-                            count = 0;
-                            cycle++;
-                            cout << "current read cycle: "
-                            << (int)cycle << endl;
-                            if ((int)cycle == 16){
-                                running = false;
-                                processing = false;
-                                break;
-                            }
-                        }
-                    }
-                    
-                }
-                
-
-            }
+            
             
             // cout << "count :" << count << endl;
             
@@ -284,6 +194,97 @@ void readResponse(){
             // count++;
             // count++;
             // count++;
+        // }
+        if(b_type && transfer){
+            while (nByte < 24){
+                // DWORD bytesRead;
+                // n = readFromSerialPort(fd,dataBuffer, sizeof(dataBuffer));
+                if (!ReadFile(hSerial, dataBuffer, sizeof(dataBuffer), &bytesRead, NULL)) {
+                    std::cerr << "Error reading from serial port" << std::endl;
+                    CloseHandle(hSerial);
+                    // return 1;
+                }
+                // else {
+                //     cout << "Read byte from serial port: "
+                //         << std::hex <<(int) dataBuffer[0] << "len :" << (int)n << endl;
+                // }
+                // big_data+=(nByte*6);
+                if(bytesRead >0){
+                    // memcpy(&big_data[nByte],&dataBuffer,sizeof(dataBuffer));
+                    // cout << "Read from serial port: 0x"
+                    //     << std::hex <<(int) readBuffer[0] <<endl;//std::string(readBuffer, n) << "len :" << n << endl;
+                    count++;
+                    big_data[nByte] = dataBuffer[0];
+                    nByte++;
+                }
+                
+            
+            }
+            // if (!ReadFile(hSerial, big_data, sizeof(big_data), &bytesRead, NULL)) {
+            //     std::cerr << "Error reading from serial port" << std::endl;
+            //     CloseHandle(hSerial);
+            //     // return 1;
+            // }
+            // if(bytesRead >0){
+            //     // memcpy(&big_data[nByte*6],&dataBuffer,sizeof(dataBuffer));
+            //     // nByte++;
+
+            // }
+            count = 0;
+            transfer = 0;
+            nByte = 0;
+            b_type = 0;
+            cout << "Read big data from serial port: "
+                        << std::string(big_data, sizeof(big_data)) << endl;
+            cycle++;
+            next_step = true;
+            cout << "current read cycle: "
+            << (int)cycle << endl;
+            if ((int)cycle == 16){
+                running = false;
+                // processing = false;
+                break;
+            }
+            
+            
+        }else {
+            
+            // n = readFromSerialPort(fd,readBuffer, sizeof(readBuffer));
+            if (!ReadFile(hSerial, readBuffer, sizeof(readBuffer), &bytesRead, NULL)) {
+                std::cerr << "Error reading from serial port" << std::endl;
+                CloseHandle(hSerial);
+                // return 1;
+            }
+            if(bytesRead > 0){
+                // if (readBuffer[0] == 0xAC){
+                //     count = 0;
+                // }
+                // else {
+                cout << "Read from serial port: 0x"
+                    << std::hex <<(int) readBuffer[0] <<endl;//std::string(readBuffer, n) << "len :" << n << endl;
+                count++;
+                // cout<< "Data in buffer" << endl;
+                // }
+                if(readBuffer[0]==writeBuffer[0]){
+                    
+                    next_step = true;
+                    if(readBuffer[0]==0xAC){
+                        cout<< "End of cycle" << endl;
+                        count = 0;
+                        cycle++;
+                        cout << "current read cycle: "
+                        << (int)cycle << endl;
+                        if ((int)cycle == 16){
+                            running = false;
+                            // processing = false;
+                            break;
+                        }
+                    }
+                }
+                
+            }
+            
+
         }
         // cycle++;
         // count = 0;
@@ -297,6 +298,7 @@ void readResponse(){
         //     << res << " milliseconds" << endl;
         
     }
+    
     cout << "Exiting read thread" << endl;
     return;
 }
