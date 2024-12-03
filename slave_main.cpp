@@ -82,7 +82,7 @@ int main() {
 
     // Set timeouts for reading and writing
     COMMTIMEOUTS timeouts = {0};
-    timeouts.ReadIntervalTimeout = 0;  // No wait time between bytes
+    timeouts.ReadIntervalTimeout = 1;  // No wait time between bytes
     timeouts.ReadTotalTimeoutConstant = 1; // Minimal timeout for total read
     timeouts.ReadTotalTimeoutMultiplier = 0; // Zero multiplier (read as fast as possible)
     timeouts.WriteTotalTimeoutConstant = 50;
@@ -154,7 +154,7 @@ int main() {
                     processing = 0;
                     b_type = 0;
                     // count ++;
-                    // std::cout << "Data sent: " << dataToSend << std::endl;
+                    std::cout << "Data sent"  << std::endl;
                 }else {
                     DWORD bytesWritten;
                     cout << " Responding" << endl;
